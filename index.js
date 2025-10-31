@@ -47,8 +47,8 @@ if (!TOKEN) {
 }
 
 // --- Paths for Data Files ---
-const LAST_VIDEO_FILE = "./lastVideo.json";
-const COUNT_DATA_FILE = "./countData.json";
+const COUNT_DATA_FILE = "/data/countData.json";
+const LAST_VIDEO_FILE = "/data/lastVideo.json";
 
 // ============================================================================
 // 🎥 YOUTUBE ALERT BOT
