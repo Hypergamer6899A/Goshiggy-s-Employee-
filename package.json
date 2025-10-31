@@ -1,0 +1,13 @@
+{
+  "name": "discord-superbot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "dependencies": {
+    "discord.js": "^14.16.3",
+    "axios": "^1.7.2",
+    "express": "^4.21.1",
+    "fs-extra": "^11.2.0",
+    "dotenv": "^16.4.5"
+  }
+}
