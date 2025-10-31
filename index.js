@@ -292,6 +292,9 @@ function updatePresence() {
     { name: "Trying to sleep", type: ActivityType.Playing },
     { name: "Doing tasks", type: ActivityType.Watching },
     { name: "Working hard", type: ActivityType.Listening },
+    { name: "Watching Goshiggy videos", type: ActivityType.Watching },
+    { name: "Counting numbers", type: ActivityType.Streaming },
+    { name: "Welcoming members", type: ActivityType.Playing},
   ];
 
   const random = activities[Math.floor(Math.random() * activities.length)];
