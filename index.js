@@ -179,11 +179,6 @@ client.on("messageCreate", async (message) => {
     lastNumber = 0;
     lastUserId = null;
     await saveCountData();
-
-    client.user.setPresence({
-      activities: [{ name: `Counting paused`, type: ActivityType.Playing }],
-      status: "online",
-    });
     return;
   }
 
@@ -195,11 +190,6 @@ client.on("messageCreate", async (message) => {
   if (number % 50 === 0) {
     await message.channel.send(`🎉 Nice! The count reached **${number}**!`);
   }
-
-  client.user.setPresence({
-    activities: [{ name: `Counting, rn at ${lastNumber}`, type: ActivityType.Playing }],
-    status: "online",
-  });
 });
 
 // ============================================================================
@@ -299,9 +289,9 @@ function updatePresence() {
   if (!client.user) return;
 
   const activities = [
-    { name: "Counting game", type: ActivityType.Playing },
-    { name: "YouTube alerts", type: ActivityType.Watching },
-    { name: "New members join", type: ActivityType.Listening },
+    { name: "Trying to sleep", type: ActivityType.Playing },
+    { name: "Doing tasks", type: ActivityType.Watching },
+    { name: "Working hard", type: ActivityType.Listening },
   ];
 
   const random = activities[Math.floor(Math.random() * activities.length)];
