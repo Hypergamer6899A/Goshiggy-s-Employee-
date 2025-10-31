@@ -261,11 +261,6 @@ client.once("ready", async () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
   await loadCountData();
 
-  client.user.setPresence({
-    activities: [{ name: "Running all systems", type: ActivityType.Playing }],
-    status: "online",
-  });
-
   // Register /testwelcome
   const commands = [
     {
@@ -291,10 +286,40 @@ client.once("ready", async () => {
   // Start YouTube checks
   checkForNewVideo();
   setInterval(checkForNewVideo, 15 * 60 * 1000);
+
+  // Start unified presence loop
+  updatePresence();
+  setInterval(updatePresence, 5 * 60 * 1000); // updates every 5 minutes
 });
 
+// ============================================================================
+// 🎮 PRESENCE SYSTEM
+// ============================================================================
+function updatePresence() {
+  if (!client.user) return;
+
+  const activities = [
+    { name: "Counting game", type: ActivityType.Playing },
+    { name: "YouTube alerts", type: ActivityType.Watching },
+    { name: "New members join", type: ActivityType.Listening },
+  ];
+
+  const random = activities[Math.floor(Math.random() * activities.length)];
+
+  client.user.setPresence({
+    activities: [random],
+    status: "online",
+  });
+
+  console.log(`🟢 Presence set to "${random.name}"`);
+}
+
+// ============================================================================
+// 🧩 COMMAND HANDLER
+// ============================================================================
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isCommand()) return;
+
   if (interaction.commandName === "testwelcome") {
     if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator))
       return interaction.reply({ content: "❌ No permission.", ephemeral: true });
@@ -302,10 +327,7 @@ client.on("interactionCreate", async (interaction) => {
     const user = interaction.options.getUser("user");
     const member = interaction.guild.members.cache.get(user.id);
     if (!member)
-      return interaction.reply({
-        content: "User not found.",
-        ephemeral: true,
-      });
+      return interaction.reply({ content: "User not found.", ephemeral: true });
 
     await sendWelcome(member, true);
     await interaction.reply({
@@ -328,7 +350,9 @@ app.get("/health", (_, res) =>
     time: new Date().toISOString(),
   })
 );
-app.listen(PORT || 3000, () => console.log(`🌐 Web server listening on ${PORT || 3000}`));
+app.listen(PORT || 3000, () =>
+  console.log(`🌐 Web server listening on ${PORT || 3000}`)
+);
 
 // ============================================================================
 // 🔑 LOGIN
@@ -336,3 +360,4 @@ app.listen(PORT || 3000, () => console.log(`🌐 Web server listening on ${PORT 
 client.login(TOKEN).catch((err) => {
   console.error("❌ Discord login failed:", err.message);
 });
+
