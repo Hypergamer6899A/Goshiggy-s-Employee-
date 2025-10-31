@@ -10,6 +10,7 @@ import {
 import axios from "axios";
 import express from "express";
 import fs from "fs-extra";
+import path from "path";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -46,9 +47,29 @@ if (!TOKEN) {
   process.exit(1);
 }
 
-// --- Paths for Data Files ---
-const COUNT_DATA_FILE = "/data/countData.json";
-const LAST_VIDEO_FILE = "/data/lastVideo.json";
+// ============================================================================
+// 💾 PERSISTENT DATA SETUP
+// ============================================================================
+const DATA_DIR = "/data";
+const COUNT_DATA_FILE = path.join(DATA_DIR, "countData.json");
+const LAST_VIDEO_FILE = path.join(DATA_DIR, "lastVideo.json");
+
+// Ensure /data exists
+await fs.ensureDir(DATA_DIR);
+
+// If missing in /data, copy from repo or create blank
+for (const file of [COUNT_DATA_FILE, LAST_VIDEO_FILE]) {
+  const repoFile = `./${path.basename(file)}`;
+  if (!(await fs.pathExists(file))) {
+    if (await fs.pathExists(repoFile)) {
+      await fs.copy(repoFile, file);
+      console.log(`Copied ${path.basename(file)} from repo to /data`);
+    } else {
+      await fs.writeJson(file, {}, { spaces: 2 });
+      console.log(`Created new ${path.basename(file)} in /data`);
+    }
+  }
+}
 
 // ============================================================================
 // 🎥 YOUTUBE ALERT BOT
@@ -251,7 +272,6 @@ client.once("clientReady", async () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
   await loadCountData();
 
-  // Register /testwelcome
   const commands = [
     {
       name: "testwelcome",
@@ -273,13 +293,11 @@ client.once("clientReady", async () => {
     console.error("❌ Command registration failed:", err.message);
   }
 
-  // Start YouTube checks
   checkForNewVideo();
   setInterval(checkForNewVideo, 15 * 60 * 1000);
 
-  // Start unified presence loop
   updatePresence();
-  setInterval(updatePresence, 5 * 60 * 1000); // updates every 5 minutes
+  setInterval(updatePresence, 5 * 60 * 1000);
 });
 
 // ============================================================================
@@ -293,8 +311,8 @@ function updatePresence() {
     { name: "Doing tasks", type: ActivityType.Watching },
     { name: "Working hard", type: ActivityType.Listening },
     { name: "Watching Goshiggy videos", type: ActivityType.Watching },
-    { name: "Counting numbers", type: ActivityType.Streaming },
-    { name: "Welcoming members", type: ActivityType.Playing},
+    { name: "Counting numbers", type: ActivityType.Playing },
+    { name: "Welcoming members", type: ActivityType.Playing },
   ];
 
   const random = activities[Math.floor(Math.random() * activities.length)];
@@ -353,4 +371,3 @@ app.listen(PORT || 3000, () =>
 client.login(TOKEN).catch((err) => {
   console.error("❌ Discord login failed:", err.message);
 });
-
