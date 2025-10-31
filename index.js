@@ -50,7 +50,7 @@ if (!TOKEN) {
 // ============================================================================
 // 💾 PERSISTENT DATA SETUP
 // ============================================================================
-const DATA_DIR = "/data";
+const DATA_DIR = path.join(process.cwd(), "data");
 const COUNT_DATA_FILE = path.join(DATA_DIR, "countData.json");
 const LAST_VIDEO_FILE = path.join(DATA_DIR, "lastVideo.json");
 
