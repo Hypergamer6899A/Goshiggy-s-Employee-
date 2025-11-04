@@ -9,9 +9,8 @@ import {
 } from "discord.js";
 import axios from "axios";
 import express from "express";
-import fs from "fs-extra";
-import path from "path";
 import dotenv from "dotenv";
+import admin from "firebase-admin";
 dotenv.config();
 
 // --- Discord Client ---
@@ -40,39 +39,36 @@ const {
   BAN_ROLE_ID,
   // Welcome bot
   CHANNEL_ID,
+  // Firebase
+  FIREBASE_PROJECT_ID,
+  FIREBASE_CLIENT_EMAIL,
+  FIREBASE_PRIVATE_KEY
 } = process.env;
 
 if (!TOKEN) {
   console.error("❌ Missing TOKEN in .env");
   process.exit(1);
 }
-
-// ============================================================================
-// 💾 PERSISTENT DATA SETUP
-// ============================================================================
-const DATA_DIR = path.join(process.cwd(), "data");
-const COUNT_DATA_FILE = path.join(DATA_DIR, "countData.json");
-const LAST_VIDEO_FILE = path.join(DATA_DIR, "lastVideo.json");
-
-// Ensure /data exists
-await fs.ensureDir(DATA_DIR);
-
-// If missing in /data, copy from repo or create blank
-for (const file of [COUNT_DATA_FILE, LAST_VIDEO_FILE]) {
-  const repoFile = `./${path.basename(file)}`;
-  if (!(await fs.pathExists(file))) {
-    if (await fs.pathExists(repoFile)) {
-      await fs.copy(repoFile, file);
-      console.log(`Copied ${path.basename(file)} from repo to /data`);
-    } else {
-      await fs.writeJson(file, {}, { spaces: 2 });
-      console.log(`Created new ${path.basename(file)} in /data`);
-    }
-  }
+if (!FIREBASE_PROJECT_ID || !FIREBASE_CLIENT_EMAIL || !FIREBASE_PRIVATE_KEY) {
+  console.error("❌ Missing Firebase credentials in .env");
+  process.exit(1);
 }
 
 // ============================================================================
-// 🎥 YOUTUBE ALERT BOT
+// 🔥 FIREBASE SETUP
+// ============================================================================
+admin.initializeApp({
+  credential: admin.credential.cert({
+    projectId: FIREBASE_PROJECT_ID,
+    clientEmail: FIREBASE_CLIENT_EMAIL,
+    privateKey: FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+  }),
+});
+
+const db = admin.firestore();
+
+// ============================================================================
+// 🎥 YOUTUBE ALERT BOT (Firestore edition)
 // ============================================================================
 async function getLatestVideo() {
   try {
@@ -102,6 +98,27 @@ async function getLatestVideo() {
   }
 }
 
+async function getLastVideo() {
+  try {
+    const doc = await db.collection("botData").doc("lastVideo").get();
+    return doc.exists ? doc.data() : { lastVideoId: "", lastTimestamp: 0 };
+  } catch (err) {
+    console.error("❌ Failed to read lastVideo from Firestore:", err.message);
+    return { lastVideoId: "", lastTimestamp: 0 };
+  }
+}
+
+async function setLastVideo(id) {
+  try {
+    await db.collection("botData").doc("lastVideo").set({
+      lastVideoId: id,
+      lastTimestamp: Date.now(),
+    });
+  } catch (err) {
+    console.error("❌ Failed to update lastVideo in Firestore:", err.message);
+  }
+}
+
 async function checkForNewVideo() {
   if (!YT_API_KEY || !YT_CHANNEL_ID || !DISCORD_CHANNEL_ID || !PING_ROLE_ID) return;
 
@@ -111,20 +128,9 @@ async function checkForNewVideo() {
   const publishedTime = new Date(latest.publishedAt).getTime();
   const now = Date.now();
   const ageHours = (now - publishedTime) / (1000 * 60 * 60);
+  if (ageHours > 2) return;
 
-  if (ageHours > 2) return; // Ignore old videos
-
-  let saved = { lastVideoId: "", lastTimestamp: 0 };
-  try {
-    if (await fs.pathExists(LAST_VIDEO_FILE)) {
-      saved = await fs.readJson(LAST_VIDEO_FILE);
-    } else {
-      await fs.writeJson(LAST_VIDEO_FILE, saved, { spaces: 2 });
-    }
-  } catch {
-    console.warn("⚠️ Could not access lastVideo.json");
-  }
-
+  const saved = await getLastVideo();
   if (saved.lastVideoId !== latest.id) {
     try {
       const channel = await client.channels.fetch(DISCORD_CHANNEL_ID);
@@ -136,32 +142,41 @@ async function checkForNewVideo() {
       console.error("❌ Failed to send YouTube alert:", err.message);
     }
 
-    saved.lastVideoId = latest.id;
-    saved.lastTimestamp = now;
-    await fs.writeJson(LAST_VIDEO_FILE, saved, { spaces: 2 });
+    await setLastVideo(latest.id);
   }
 }
 
 // ============================================================================
-// 🔢 COUNTING BOT
+// 🔢 COUNTING BOT (Firestore edition)
 // ============================================================================
 let lastNumber = 0;
 let lastUserId = null;
 
 async function loadCountData() {
   try {
-    if (await fs.pathExists(COUNT_DATA_FILE)) {
-      const data = await fs.readJson(COUNT_DATA_FILE);
+    const doc = await db.collection("botData").doc("countData").get();
+    if (doc.exists) {
+      const data = doc.data();
       lastNumber = data.lastNumber || 0;
       lastUserId = data.lastUserId || null;
+    } else {
+      await saveCountData();
     }
   } catch (err) {
-    console.warn("⚠️ Failed to load countData.json:", err.message);
+    console.warn("⚠️ Failed to load countData:", err.message);
   }
 }
 
 async function saveCountData() {
-  await fs.writeJson(COUNT_DATA_FILE, { lastNumber, lastUserId }, { spaces: 2 });
+  try {
+    await db.collection("botData").doc("countData").set({
+      lastNumber,
+      lastUserId,
+      updated: new Date().toISOString(),
+    });
+  } catch (err) {
+    console.error("❌ Failed to save countData:", err.message);
+  }
 }
 
 client.on("messageCreate", async (message) => {
@@ -268,7 +283,7 @@ client.on("guildMemberAdd", (member) => sendWelcome(member));
 // ============================================================================
 // 🚀 ON READY
 // ============================================================================
-client.once("clientReady", async () => {
+client.once("ready", async () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
   await loadCountData();
 
