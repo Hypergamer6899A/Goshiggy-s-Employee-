@@ -3,8 +3,12 @@ import { initCounting } from "./services/counting.js";
 import { initWelcome } from "./services/welcome.js";
 import { initPresence } from "./services/presence.js";
 import { initFirebase } from "./firebase.js";
+import { initWeb } from "./web.js";
 
+// Firebase first
 const { db } = initFirebase(process.env);
+
+// Feature services
 const counting = initCounting({ client, db, env: process.env });
 const welcome = initWelcome({ client, env: process.env });
 const presence = initPresence(client);
@@ -14,6 +18,14 @@ const { checkForNewVideo } = initYouTube({
   env: process.env,
 });
 
+// Start Web Server
+initWeb({
+  client,
+  counting,
+  port: process.env.PORT || 3000,
+});
+
+// Discord ready
 client.once("clientReady", async () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
 
@@ -23,6 +35,7 @@ client.once("clientReady", async () => {
   setInterval(presence.updatePresence, 5 * 60 * 1000);
 });
 
+// Commands
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isCommand()) return;
 
@@ -44,7 +57,6 @@ client.on("interactionCreate", async (interaction) => {
       });
     }
 
-    // ✅ THIS is where it goes
     await welcome.sendWelcome(member, true);
 
     await interaction.reply({
@@ -53,4 +65,3 @@ client.on("interactionCreate", async (interaction) => {
     });
   }
 });
-
