@@ -1,3 +1,8 @@
+import {
+  Client,
+  GatewayIntentBits,
+  PermissionFlagsBits,
+} from "discord.js";
 import { initYouTube } from "./services/youtube.js";
 import { initCounting } from "./services/counting.js";
 import { initWelcome } from "./services/welcome.js";
@@ -5,10 +10,20 @@ import { initPresence } from "./services/presence.js";
 import { initFirebase } from "./firebase.js";
 import { initWeb } from "./web.js";
 
-// Firebase first
+// 1️⃣ Create Discord client first
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+  ],
+});
+
+// 2️⃣ Initialize Firebase
 const { db } = initFirebase(process.env);
 
-// Feature services
+// 3️⃣ Initialize services (client exists now)
 const counting = initCounting({ client, db, env: process.env });
 const welcome = initWelcome({ client, env: process.env });
 const presence = initPresence(client);
@@ -18,14 +33,14 @@ const { checkForNewVideo } = initYouTube({
   env: process.env,
 });
 
-// Start Web Server
+// 4️⃣ Start web server
 initWeb({
   client,
   counting,
   port: process.env.PORT || 3000,
 });
 
-// Discord ready
+// 5️⃣ Discord ready
 client.once("clientReady", async () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
 
@@ -35,7 +50,7 @@ client.once("clientReady", async () => {
   setInterval(presence.updatePresence, 5 * 60 * 1000);
 });
 
-// Commands
+// 6️⃣ Slash commands
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isCommand()) return;
 
@@ -64,4 +79,9 @@ client.on("interactionCreate", async (interaction) => {
       ephemeral: true,
     });
   }
+});
+
+// 7️⃣ Login Discord
+client.login(process.env.TOKEN).catch((err) => {
+  console.error("❌ Discord login failed:", err.message);
 });
