@@ -2,7 +2,9 @@ import { initYouTube } from "./services/youtube.js";
 import { initCounting } from "./services/counting.js";
 import { initWelcome } from "./services/welcome.js";
 import { initPresence } from "./services/presence.js";
+import { initFirebase } from "./firebase.js";
 
+const { db } = initFirebase(process.env);
 const counting = initCounting({ client, db, env: process.env });
 const welcome = initWelcome({ client, env: process.env });
 const presence = initPresence(client);
