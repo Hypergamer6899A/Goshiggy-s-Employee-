@@ -84,6 +84,40 @@ async function getLatestVideo() {
       }
     );
 
+    async function checkForNewVideo() {
+  if (!YT_API_KEY || !YT_CHANNEL_ID || !DISCORD_CHANNEL_ID || !PING_ROLE_ID) return;
+
+  const latest = await getLatestVideo();
+  if (!latest) return;
+
+  const publishedTime = new Date(latest.publishedAt).getTime();
+  const ageHours = (Date.now() - publishedTime) / (1000 * 60 * 60);
+
+  // Ignore old uploads (bot restarts, etc.)
+  if (ageHours > 2) return;
+
+  try {
+    const doc = await db.collection("botData").doc("lastVideo").get();
+    const lastVideoId = doc.exists ? doc.data().lastVideoId : null;
+
+    if (lastVideoId === latest.id) return;
+
+    const channel = await client.channels.fetch(DISCORD_CHANNEL_ID);
+    await channel.send(
+      `<@&${PING_ROLE_ID}> **New video uploaded!**\n**${latest.title}**\n${latest.url}`
+    );
+
+    await db.collection("botData").doc("lastVideo").set({
+      lastVideoId: latest.id,
+      lastTimestamp: Date.now(),
+    });
+
+    console.log("✅ YouTube alert sent.");
+  } catch (err) {
+    console.error("❌ YouTube alert error:", err.message);
+  }
+}
+
     const uploadsPlaylist =
       channelRes.data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
 
