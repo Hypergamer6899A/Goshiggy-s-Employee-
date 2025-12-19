@@ -72,24 +72,45 @@ const db = admin.firestore();
 // ============================================================================
 async function getLatestVideo() {
   try {
-    const res = await axios.get("https://www.googleapis.com/youtube/v3/search", {
-      params: {
-        key: YT_API_KEY,
-        channelId: YT_CHANNEL_ID,
-        part: "snippet",
-        order: "date",
-        maxResults: 1,
-        type: "video",
-      },
-    });
+    // 1️⃣ Get the uploads playlist ID for the channel
+    const channelRes = await axios.get(
+      "https://www.googleapis.com/youtube/v3/channels",
+      {
+        params: {
+          key: YT_API_KEY,
+          id: YT_CHANNEL_ID,
+          part: "contentDetails",
+        },
+      }
+    );
+
+    const uploadsPlaylist =
+      channelRes.data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+
+    if (!uploadsPlaylist) return null;
+
+    // 2️⃣ Get the most recent upload from that playlist
+    const res = await axios.get(
+      "https://www.googleapis.com/youtube/v3/playlistItems",
+      {
+        params: {
+          key: YT_API_KEY,
+          playlistId: uploadsPlaylist,
+          part: "snippet",
+          maxResults: 1,
+        },
+      }
+    );
 
     const item = res.data.items?.[0];
     if (!item) return null;
 
+    const videoId = item.snippet.resourceId.videoId;
+
     return {
-      id: item.id.videoId,
+      id: videoId,
       title: item.snippet.title,
-      url: `https://www.youtube.com/watch?v=${item.id.videoId}`,
+      url: `https://www.youtube.com/watch?v=${videoId}`,
       publishedAt: item.snippet.publishedAt,
     };
   } catch (err) {
@@ -98,53 +119,6 @@ async function getLatestVideo() {
   }
 }
 
-async function getLastVideo() {
-  try {
-    const doc = await db.collection("botData").doc("lastVideo").get();
-    return doc.exists ? doc.data() : { lastVideoId: "", lastTimestamp: 0 };
-  } catch (err) {
-    console.error("❌ Failed to read lastVideo from Firestore:", err.message);
-    return { lastVideoId: "", lastTimestamp: 0 };
-  }
-}
-
-async function setLastVideo(id) {
-  try {
-    await db.collection("botData").doc("lastVideo").set({
-      lastVideoId: id,
-      lastTimestamp: Date.now(),
-    });
-  } catch (err) {
-    console.error("❌ Failed to update lastVideo in Firestore:", err.message);
-  }
-}
-
-async function checkForNewVideo() {
-  if (!YT_API_KEY || !YT_CHANNEL_ID || !DISCORD_CHANNEL_ID || !PING_ROLE_ID) return;
-
-  const latest = await getLatestVideo();
-  if (!latest) return;
-
-  const publishedTime = new Date(latest.publishedAt).getTime();
-  const now = Date.now();
-  const ageHours = (now - publishedTime) / (1000 * 60 * 60);
-  if (ageHours > 2) return;
-
-  const saved = await getLastVideo();
-  if (saved.lastVideoId !== latest.id) {
-    try {
-      const channel = await client.channels.fetch(DISCORD_CHANNEL_ID);
-      await channel.send(
-        `<@&${PING_ROLE_ID}> New video uploaded!\n**${latest.title}**\n${latest.url}`
-      );
-      console.log("✅ YouTube alert sent.");
-    } catch (err) {
-      console.error("❌ Failed to send YouTube alert:", err.message);
-    }
-
-    await setLastVideo(latest.id);
-  }
-}
 
 // ============================================================================
 // 🔢 COUNTING BOT (Firestore edition)
