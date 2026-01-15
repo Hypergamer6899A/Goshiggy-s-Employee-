@@ -10,7 +10,6 @@ import { initPresence } from "./services/presence.js";
 import { initFirebase } from "./firebase.js";
 import { initWeb } from "./web.js";
 
-// 1️⃣ Create Discord client first
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -20,10 +19,8 @@ const client = new Client({
   ],
 });
 
-// 2️⃣ Initialize Firebase
 const { db } = initFirebase(process.env);
 
-// 3️⃣ Initialize services (client exists now)
 const counting = initCounting({ client, db, env: process.env });
 const welcome = initWelcome({ client, env: process.env });
 const presence = initPresence(client);
@@ -33,14 +30,12 @@ const { checkForNewVideo } = initYouTube({
   env: process.env,
 });
 
-// 4️⃣ Start web server
 initWeb({
   client,
   counting,
   port: process.env.PORT || 3000,
 });
 
-// 5️⃣ Discord ready
 client.once("clientReady", async () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
 
@@ -48,9 +43,13 @@ client.once("clientReady", async () => {
 
   presence.updatePresence();
   setInterval(presence.updatePresence, 5 * 60 * 1000);
+
+  checkForNewVideo().catch(console.error);
+  setInterval(() => {
+    checkForNewVideo().catch(console.error);
+  }, 5 * 60 * 1000);
 });
 
-// 6️⃣ Slash commands
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isCommand()) return;
 
@@ -81,7 +80,6 @@ client.on("interactionCreate", async (interaction) => {
   }
 });
 
-// 7️⃣ Login Discord
 client.login(process.env.TOKEN).catch((err) => {
   console.error("❌ Discord login failed:", err.message);
 });
