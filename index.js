@@ -8,6 +8,7 @@ import { initCounting } from "./services/counting.js";
 import { initWelcome } from "./services/welcome.js";
 import { initPresence } from "./services/presence.js";
 import { initFirebase } from "./firebase.js";
+import { initStreamCommand } from "./services/stream.js";
 import { initWeb } from "./web.js";
 
 const client = new Client({
@@ -27,6 +28,11 @@ const presence = initPresence(client);
 const { checkForNewVideo } = initYouTube({
   client,
   db,
+  env: process.env,
+});
+
+initStreamCommand({
+  client,
   env: process.env,
 });
 
