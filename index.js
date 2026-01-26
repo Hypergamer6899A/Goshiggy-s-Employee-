@@ -42,7 +42,7 @@ initWeb({
   port: process.env.PORT || 3000,
 });
 
-client.once("clientReady", async () => {
+client.once("ready", async () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
 
   await counting.loadCountData();
