@@ -12,6 +12,9 @@ export function initPresence(client) {
 { name: "Counting numbers", type: ActivityType.Playing }, 
 { name: "Welcoming members", type: ActivityType.Playing },
 { name: "Eating a sandwich", type: ActivityType.Playing },
+{ name: "Looking for Streams", type: ActivityType.Streaming},
+{ name: "Taking a break", type: ActivityType.Playing},
+{ name: "Doing some Gambling", type: ActivityType.Competing},
     ];
 
     const random = activities[Math.floor(Math.random() * activities.length)];
