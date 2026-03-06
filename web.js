@@ -4,7 +4,7 @@ export function initWeb({ client, counting, port }) {
   const app = express();
 
   app.get("/", (_, res) => {
-    res.send("✅ Discord Superbot running");
+    res.send("Discord Superbot running");
   });
 
   app.get("/health", (_, res) => {
@@ -20,6 +20,6 @@ export function initWeb({ client, counting, port }) {
   });
 
   app.listen(port, () => {
-    console.log(`🌐 Web server listening on ${port}`);
+    console.log(`Web server listening on ${port}`);
   });
 }
