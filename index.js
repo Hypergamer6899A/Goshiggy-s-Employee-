@@ -12,34 +12,25 @@ import { initPresence } from "./services/presence.js";
 import { initStreamCommand } from "./services/stream.js";
 import { initWeb } from "./web.js";
 
-/* -------------------------------------------------- */
-/* STARTUP DIAGNOSTICS                                */
-/* -------------------------------------------------- */
 
-console.log("🚀 Starting Discord bot process...");
+console.log("Starting Discord bot process...");
 
 process.on("unhandledRejection", (reason) => {
-  console.error("❌ Unhandled Rejection:", reason);
+  console.error("Unhandled Rejection:", reason);
 });
 
 process.on("uncaughtException", (err) => {
-  console.error("❌ Uncaught Exception:", err);
+  console.error("Uncaught Exception:", err);
 });
 
-/* -------------------------------------------------- */
-/* ENV VALIDATION                                     */
-/* -------------------------------------------------- */
 
 if (!process.env.TOKEN) {
-  console.error("❌ TOKEN env var is missing.");
+  console.error("TOKEN env var is missing.");
   process.exit(1);
 }
 
-console.log("🔑 TOKEN detected");
+console.log("TOKEN detected");
 
-/* -------------------------------------------------- */
-/* CLIENT SETUP                                       */
-/* -------------------------------------------------- */
 
 const client = new Client({
   intents: [
@@ -50,9 +41,6 @@ const client = new Client({
   ],
 });
 
-/* -------------------------------------------------- */
-/* SERVICES                                           */
-/* -------------------------------------------------- */
 
 const { db } = initFirebase(process.env);
 
@@ -86,19 +74,16 @@ initWeb({
   port: process.env.PORT || 3000,
 });
 
-/* -------------------------------------------------- */
-/* EVENTS                                             */
-/* -------------------------------------------------- */
 
 client.once("ready", async () => {
-  console.log(`✅ Logged in as ${client.user.tag}`);
-  console.log(`📡 Connected to ${client.guilds.cache.size} guild(s)`);
+  console.log(`Logged in as ${client.user.tag}`);
+  console.log(`Connected to ${client.guilds.cache.size} guild(s)`);
 
   try {
     await counting.loadCountData();
-    console.log("📊 Counting data loaded");
+    console.log("Counting data loaded");
   } catch (err) {
-    console.error("❌ Counting load failed:", err);
+    console.error("Counting load failed:", err);
   }
 
   presence.updatePresence();
@@ -114,7 +99,7 @@ client.on("interactionCreate", async (interaction) => {
   if (interaction.commandName === "testwelcome") {
     if (!interaction.memberPermissions?.has(PermissionFlagsBits.Administrator)) {
       return interaction.reply({
-        content: "❌ No permission.",
+        content: "No permission.",
         ephemeral: true,
       });
     }
@@ -132,32 +117,29 @@ client.on("interactionCreate", async (interaction) => {
     await welcome.sendWelcome(member, true);
 
     await interaction.reply({
-      content: `✅ Test welcome sent to ${user.tag}`,
+      content: `Test welcome sent to ${user.tag}`,
       ephemeral: true,
     });
   }
 });
 
 client.on("error", (err) => {
-  console.error("❌ Discord client error:", err);
+  console.error("Discord client error:", err);
 });
 
 client.on("shardError", (err) => {
-  console.error("❌ Shard error:", err);
+  console.error("Shard error:", err);
 });
 
-/* -------------------------------------------------- */
-/* LOGIN                                              */
-/* -------------------------------------------------- */
 
-console.log("🔐 Attempting Discord login...");
+console.log("Attempting Discord login...");
 
 client
   .login(process.env.TOKEN)
   .then(() => {
-    console.log("📨 Login promise resolved");
+    console.log("Login promise resolved");
   })
   .catch((err) => {
-    console.error("❌ Discord login failed:", err);
+    console.error("Discord login failed:", err);
     process.exit(1);
   });
