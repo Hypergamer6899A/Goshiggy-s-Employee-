@@ -34,11 +34,9 @@ export function initStreamCommand({ client, env }) {
 
     await announceChannel.send({ content: announcement });
 
-    // Optional: confirmation in staff
     await message.reply("✅ Stream announcement sent.");
-
-    // Optional: delete command message for cleanliness
-    // await message.delete();
+    
+    await message.delete();
   });
 }
 
