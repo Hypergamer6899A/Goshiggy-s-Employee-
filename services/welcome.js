@@ -15,7 +15,14 @@ const joinMessages = [
 "Do we really need {Username}? Oh wait they're already here", 
 "It's a bird, it's a plane, it's... it's {Username}!", 
 "{ServerName} now has {Username} to worry about", 
-"Welcome {Username}. Yes I got lazy with this message, don't judge me"
+"Welcome {Username}. Yes I got lazy with this message, don't judge me",
+"{Username} just noclipped into {ServerName}",
+"EVERYBODY RUN, IT'S {Username}!!!",
+"LETS GO GAMBLING! I just won a {Username}!",
+"{Username} {Username} {Username} welcome :D",
+"{Username} won a 1-way ticket to {ServerName}, congrats!",
+"Be careful, I heard {Username} lurking nearby...",
+"How many custom messages are there {Username}?"
 ];
 
 function formatMessage(template, member) {
