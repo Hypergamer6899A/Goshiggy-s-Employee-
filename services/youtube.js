@@ -8,27 +8,31 @@ export function initYouTube({ client, db, env }) {
     PING_ROLE_ID,
   } = env;
 
-  async function getLatestVideo() {
-    const channelRes = await axios.get(
-      "https://www.googleapis.com/youtube/v3/channels",
-      {
-        params: {
-          key: YT_API_KEY,
-          id: YT_CHANNEL_ID,
-          part: "contentDetails",
-        },
-      }
-    );
+  // Cached after first fetch — the uploads playlist ID never changes
+  let cachedUploadsPlaylistId = null;
 
-    const uploads =
-      channelRes.data.items[0].contentDetails.relatedPlaylists.uploads;
+  async function getLatestVideo() {
+    if (!cachedUploadsPlaylistId) {
+      const channelRes = await axios.get(
+        "https://www.googleapis.com/youtube/v3/channels",
+        {
+          params: {
+            key: YT_API_KEY,
+            id: YT_CHANNEL_ID,
+            part: "contentDetails",
+          },
+        }
+      );
+      cachedUploadsPlaylistId =
+        channelRes.data.items[0].contentDetails.relatedPlaylists.uploads;
+    }
 
     const res = await axios.get(
       "https://www.googleapis.com/youtube/v3/playlistItems",
       {
         params: {
           key: YT_API_KEY,
-          playlistId: uploads,
+          playlistId: cachedUploadsPlaylistId,
           part: "snippet",
           maxResults: 1,
         },
