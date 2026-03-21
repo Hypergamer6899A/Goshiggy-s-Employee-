@@ -7,6 +7,7 @@ export function initCounting({ client, db, env }) {
 
   let lastNumber = 0;
   let lastUserId = null;
+  let saveTimeout = null;
 
   async function loadCountData() {
     const doc = await db.collection("botData").doc("countData").get();
@@ -24,6 +25,13 @@ export function initCounting({ client, db, env }) {
       lastUserId,
       updated: new Date().toISOString(),
     });
+  }
+
+  function scheduleSave() {
+    if (saveTimeout) clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+      saveCountData().catch(console.error);
+    }, 3000);
   }
 
   client.on("messageCreate", async (message) => {
@@ -59,13 +67,15 @@ export function initCounting({ client, db, env }) {
 
       lastNumber = 0;
       lastUserId = null;
+      // Immediate save on reset — losing this state would be bad
       await saveCountData();
       return;
     }
 
     lastNumber = number;
     lastUserId = message.author.id;
-    await saveCountData();
+    // Debounced save on valid counts — no need to write every single message
+    scheduleSave();
 
     await message.react("✅");
     if (number % 50 === 0) {
