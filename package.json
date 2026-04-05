@@ -1,6 +1,6 @@
 {
-  "name": "discord-superbot",
-  "version": "1.0.1",
+  "name": "GoShiggy's Employee",
+  "version": "2.1.6",
   "main": "index.js",
   "type": "module",
   "dependencies": {
@@ -8,6 +8,6 @@
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
-    "firebase-admin": "^12.6.0"
+    "firebase-admin": "^13.7.0"
   }
 }
