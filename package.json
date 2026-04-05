@@ -1,13 +1,20 @@
 {
-  "name": "GoShiggy's Employee",
-  "version": "2.1.6",
+  "name": "discord-superbot",
+  "version": "1.0.1",
   "main": "index.js",
   "type": "module",
+  "scripts": {
+    "build": "npm install --ignore-scripts",
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "axios": "^1.7.2",
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
-    "firebase-admin": "^13.7.0"
+    "firebase-admin": "^12.6.0"
   }
 }
