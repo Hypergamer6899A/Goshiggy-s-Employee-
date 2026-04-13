@@ -70,24 +70,24 @@ try {
 }
 
 // ─── SECTION 7: Presence Service ───────────────────────────────────────────
-let presence;
-try {
-  presence = initPresence(client);
-  console.log("Presence service initialized");
-} catch (err) {
-  console.error("Presence init failed:", err);
-  process.exit(1);
-}
+//let presence;
+//try {
+//  presence = initPresence(client);
+//  console.log("Presence service initialized");
+//} catch (err) {
+//  console.error("Presence init failed:", err);
+//  process.exit(1);
+//}
 
 // ─── SECTION 8: YouTube Service ────────────────────────────────────────────
-let checkForNewVideo;
-try {
-  ({ checkForNewVideo } = initYouTube({ client, db, env: process.env }));
-  console.log("YouTube service initialized");
-} catch (err) {
-  console.error("YouTube init failed:", err);
-  process.exit(1);
-}
+//let checkForNewVideo;
+//try {
+//  ({ checkForNewVideo } = initYouTube({ client, db, env: process.env }));
+//  console.log("YouTube service initialized");
+//} catch (err) {
+//  console.error("YouTube init failed:", err);
+//  process.exit(1);
+//}
 
 // ─── SECTION 9: Stream Command ─────────────────────────────────────────────
 //try {
