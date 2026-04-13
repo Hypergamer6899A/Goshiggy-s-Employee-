@@ -157,7 +157,7 @@ client.on("shardError", (err) => console.error("Shard error:", err));
 const loginTimeout = setTimeout(() => {
   console.error("Login timed out after 15s — something is blocking");
   process.exit(1);
-}, 15000);
+}, 30000);
 
 console.log("Attempting Discord login...");
 client
