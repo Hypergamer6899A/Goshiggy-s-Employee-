@@ -90,13 +90,13 @@ try {
 }
 
 // ─── SECTION 9: Stream Command ─────────────────────────────────────────────
-try {
-  initStreamCommand({ client, env: process.env });
-  console.log("Stream command initialized");
-} catch (err) {
-  console.error("Stream command init failed:", err);
-  process.exit(1);
-}
+//try {
+//  initStreamCommand({ client, env: process.env });
+//  console.log("Stream command initialized");
+//} catch (err) {
+//  console.error("Stream command init failed:", err);
+//  process.exit(1);
+//}
 
 // ─── SECTION 10: Web Server ────────────────────────────────────────────────
 try {
