@@ -99,13 +99,13 @@ try {
 //}
 
 // ─── SECTION 10: Web Server ────────────────────────────────────────────────
-try {
-  initWeb({ client, counting, port: process.env.PORT || 3000 });
-  console.log("Web server initialized");
-} catch (err) {
-  console.error("Web server init failed:", err);
-  process.exit(1);
-}
+//try {
+//  initWeb({ client, counting, port: process.env.PORT || 3000 });
+//  console.log("Web server initialized");
+//} catch (err) {
+//  console.error("Web server init failed:", err);
+//  process.exit(1);
+//}
 
 // ─── SECTION 11: Ready Handler ─────────────────────────────────────────────
 //client.once("ready", async () => {
