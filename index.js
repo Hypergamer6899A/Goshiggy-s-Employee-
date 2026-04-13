@@ -14,20 +14,20 @@ import { initStreamCommand } from "./services/stream.js";
 import { initWeb } from "./web.js";
 
 // ─── SECTION 2: Process Guards ─────────────────────────────────────────────
-console.log("Starting Discord bot process...");
+//console.log("Starting Discord bot process...");
 
-process.on("unhandledRejection", (reason) => {
-  console.error("Unhandled Rejection:", reason);
-});
-process.on("uncaughtException", (err) => {
-  console.error("Uncaught Exception:", err);
-});
+//process.on("unhandledRejection", (reason) => {
+//  console.error("Unhandled Rejection:", reason);
+//});
+//process.on("uncaughtException", (err) => {
+//  console.error("Uncaught Exception:", err);
+//});
 
-if (!process.env.TOKEN) {
-  console.error("TOKEN env var is missing.");
-  process.exit(1);
-}
-console.log("TOKEN detected");
+//if (!process.env.TOKEN) {
+//  console.error("TOKEN env var is missing.");
+//  process.exit(1);
+//}
+//console.log("TOKEN detected");
 
 // ─── SECTION 3: Discord Client ─────────────────────────────────────────────
 const client = new Client({
@@ -50,24 +50,24 @@ try {
 }
 
 // ─── SECTION 5: Counting Service ───────────────────────────────────────────
-let counting;
-try {
-  counting = initCounting({ client, db, env: process.env });
-  console.log("Counting service initialized");
-} catch (err) {
-  console.error("Counting init failed:", err);
-  process.exit(1);
-}
+//let counting;
+//try {
+//  counting = initCounting({ client, db, env: process.env });
+//  console.log("Counting service initialized");
+//} catch (err) {
+//  console.error("Counting init failed:", err);
+//  process.exit(1);
+//}
 
 // ─── SECTION 6: Welcome Service ────────────────────────────────────────────
-let welcome;
-try {
-  welcome = initWelcome({ client, env: process.env });
-  console.log("Welcome service initialized");
-} catch (err) {
-  console.error("Welcome init failed:", err);
-  process.exit(1);
-}
+//let welcome;
+//try {
+//  welcome = initWelcome({ client, env: process.env });
+//  console.log("Welcome service initialized");
+//} catch (err) {
+//  console.error("Welcome init failed:", err);
+//  process.exit(1);
+//}
 
 // ─── SECTION 7: Presence Service ───────────────────────────────────────────
 //let presence;
