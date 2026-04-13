@@ -108,28 +108,28 @@ try {
 }
 
 // ─── SECTION 11: Ready Handler ─────────────────────────────────────────────
-client.once("ready", async () => {
-  console.log(`Logged in as ${client.user.tag}`);
-  console.log(`Connected to ${client.guilds.cache.size} guild(s)`);
+//client.once("ready", async () => {
+//  console.log(`Logged in as ${client.user.tag}`);
+//  console.log(`Connected to ${client.guilds.cache.size} guild(s)`);
 
   // Counting load
-  try {
-    await counting.loadCountData();
-    console.log("Counting data loaded");
-  } catch (err) {
-    console.error("Counting load failed:", err);
-  }
+//  try {
+//    await counting.loadCountData();
+//    console.log("Counting data loaded");
+//  } catch (err) {
+//    console.error("Counting load failed:", err);
+//  }
 
   // Presence updates
-  presence.updatePresence();
-  setInterval(presence.updatePresence, 5 * 60 * 1000);
+//  presence.updatePresence();
+//  setInterval(presence.updatePresence, 5 * 60 * 1000);
 
   // YouTube polling (staggered 30s after startup)
-  checkForNewVideo().catch(console.error);
-  setTimeout(() => {
-    setInterval(checkForNewVideo, 5 * 60 * 1000);
-  }, 30 * 1000);
-});
+//  checkForNewVideo().catch(console.error);
+//  setTimeout(() => {
+//    setInterval(checkForNewVideo, 5 * 60 * 1000);
+//  }, 30 * 1000);
+//});
 
 // ─── SECTION 12: Interaction Handler ──────────────────────────────────────
 //client.on("interactionCreate", async (interaction) => {
