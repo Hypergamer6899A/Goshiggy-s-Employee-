@@ -132,22 +132,22 @@ client.once("ready", async () => {
 });
 
 // ─── SECTION 12: Interaction Handler ──────────────────────────────────────
-client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isCommand()) return;
-
-  if (interaction.commandName === "testwelcome") {
-    if (!interaction.memberPermissions?.has(PermissionFlagsBits.Administrator)) {
-      return interaction.reply({ content: "No permission.", ephemeral: true });
-    }
-    const user = interaction.options.getUser("user");
-    const member = interaction.guild.members.cache.get(user.id);
-    if (!member) {
-      return interaction.reply({ content: "User not found.", ephemeral: true });
-    }
-    await welcome.sendWelcome(member, true);
-    await interaction.reply({ content: `Test welcome sent to ${user.tag}`, ephemeral: true });
-  }
-});
+//client.on("interactionCreate", async (interaction) => {
+//  if (!interaction.isCommand()) return;
+//
+//  if (interaction.commandName === "testwelcome") {
+//    if (!interaction.memberPermissions?.has(PermissionFlagsBits.Administrator)) {
+//      return interaction.reply({ content: "No permission.", ephemeral: true });
+//    }
+//    const user = interaction.options.getUser("user");
+//    const member = interaction.guild.members.cache.get(user.id);
+//    if (!member) {
+//      return interaction.reply({ content: "User not found.", ephemeral: true });
+//    }
+//    await welcome.sendWelcome(member, true);
+//    await interaction.reply({ content: `Test welcome sent to ${user.tag}`, ephemeral: true });
+//  }
+//});
 
 // ─── SECTION 13: Error Handlers ────────────────────────────────────────────
 client.on("error", (err) => console.error("Discord client error:", err));
