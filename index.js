@@ -137,35 +137,27 @@ client.on("error", (err) => console.error("Discord client error:", err));
 client.on("shardError", (err) => console.error("Shard error:", err));
 
 // ─── SECTION 12: Web Server → Login on listening ──────────────────────────
-// Login is intentionally deferred until after the web server is bound.
-// Render free tier requires a port to be open before the network stack
-// is fully ready — attempting the Discord gateway connection before that
-// causes the WebSocket to hang indefinitely.
-let server;
+// ─── SECTION 12: Web Server & Login ────────────────────────────────────────
 try {
-  server = initWeb({ client, counting, port: process.env.PORT || 3000 });
-  console.log("Web server initialized");
-} catch (err) {
-  console.error("Web server init failed:", err);
-  process.exit(1);
-}
+  // Start the web server immediately to satisfy Render's port check
+  const server = initWeb({ client, counting, port: process.env.PORT || 3000 });
+  
+  server.on("listening", () => {
+    const addr = server.address();
+    console.log(`Web server listening on port ${addr.port}`);
+  });
 
-server.on("listening", () => {
-  console.log("Web server ready — attempting Discord login...");
-
-  const loginTimeout = setTimeout(() => {
-    console.error("Discord login timed out after 30s");
-    process.exit(1);
-  }, 30_000);
-
-  client
-    .login(process.env.TOKEN)
-    .then(() => {
-      clearTimeout(loginTimeout);
-      console.log("Login promise resolved");
-    })
+  // Start Discord login immediately, don't wait for the 'listening' event
+  console.log("Attempting Discord login...");
+  
+  client.login(process.env.TOKEN)
+    .then(() => console.log("Discord login successful"))
     .catch((err) => {
       console.error("Discord login failed:", err);
       process.exit(1);
     });
-});
+
+} catch (err) {
+  console.error("Initialization failed:", err);
+  process.exit(1);
+}
