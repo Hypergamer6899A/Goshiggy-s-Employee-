@@ -1,9 +1,8 @@
+// ─── web.js ────────────────────────────────────────────────────────────────
 import express from "express";
 
 export function initWeb({ client, counting, port }) {
   const app = express();
-
-  // Cache the bot tag — it won't change at runtime
   let botTag = null;
 
   app.get("/", (_, res) => {
@@ -23,7 +22,8 @@ export function initWeb({ client, counting, port }) {
     });
   });
 
-  app.listen(port, () => {
+  // Return the server so index.js can defer login until "listening" fires
+  return app.listen(port, () => {
     console.log(`Web server listening on ${port}`);
   });
 }
