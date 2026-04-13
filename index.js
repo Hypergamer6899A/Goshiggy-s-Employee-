@@ -50,14 +50,14 @@ try {
 }
 
 // ─── SECTION 5: Counting Service ───────────────────────────────────────────
-//let counting;
-//try {
-//  counting = initCounting({ client, db, env: process.env });
-//  console.log("Counting service initialized");
-//} catch (err) {
-//  console.error("Counting init failed:", err);
-//  process.exit(1);
-//}
+let counting;
+try {
+  counting = initCounting({ client, db, env: process.env });
+  console.log("Counting service initialized");
+} catch (err) {
+  console.error("Counting init failed:", err);
+  process.exit(1);
+}
 
 // ─── SECTION 6: Welcome Service ────────────────────────────────────────────
 //let welcome;
@@ -99,13 +99,13 @@ try {
 //}
 
 // ─── SECTION 10: Web Server ────────────────────────────────────────────────
-//try {
-//  initWeb({ client, counting, port: process.env.PORT || 3000 });
-//  console.log("Web server initialized");
-//} catch (err) {
-//  console.error("Web server init failed:", err);
-//  process.exit(1);
-//}
+try {
+  initWeb({ client, counting, port: process.env.PORT || 3000 });
+  console.log("Web server initialized");
+} catch (err) {
+  console.error("Web server init failed:", err);
+  process.exit(1);
+}
 
 // ─── SECTION 11: Ready Handler ─────────────────────────────────────────────
 //client.once("ready", async () => {
