@@ -136,8 +136,16 @@ client.on("interactionCreate", async (interaction) => {
 client.on("error", (err) => console.error("Discord client error:", err));
 client.on("shardError", (err) => console.error("Shard error:", err));
 
-// ─── SECTION 12: Web Server → Login on listening ──────────────────────────
 // ─── SECTION 12: Web Server & Login ────────────────────────────────────────
+import https from "https";
+
+// Add before login
+https.get("https://discord.com/api/v10/gateway", (res) => {
+  console.log("Discord API reachable, status:", res.statusCode);
+}).on("error", (err) => {
+  console.error("Cannot reach Discord API:", err.message);
+});
+
 try {
   // Start the web server immediately to satisfy Render's port check
   const server = initWeb({ client, counting, port: process.env.PORT || 3000 });
